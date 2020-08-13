@@ -38,6 +38,14 @@ function (fig_nr)
 		df=rbind(df,c(0.000,1.024,0.195,0.000,0.000,1.861,0.498,0.359))
 		colnames(df)=c("DL","TB","IN","N","R","IS-B","IS-C","IS-A")
 		c_max=2.0
+	}else if(fig_nr=="fig8e"){
+		df=data.frame()
+		df=rbind(df,c(0.620679234,0.117482949,0.86790244,0.167394065,0.498233967,0.24312755,0.317586894,0.205200732))
+		df=rbind(df,c(0.576969429,0.180292937,0.646415539,0.107583616,0.494639132,0.279203472,0.234254844,0.277084763))
+		df=rbind(df,c(0.642501748,0.135829033,0.460694981,0.104069865,0.317202992,0.296903763,0.38524544,0.211664068))
+		colnames(df)=c("Triple Mound","Triple Mound","Glume Primordium","Glume Primordium","Stamen Primordium","Stamen Primordium","Awn Primordium","Awn Primordium")
+		my_group=c(0,1,0,1,0,1,0,1)
+		c_max=1
 	}else if(fig_nr=="fig8o"){
 		df=data.frame()
 		df=rbind(df,c(0.9451904382,0.7028056476,1.683656337,1.985032241,1.936736173,1.424544254))
@@ -47,37 +55,69 @@ function (fig_nr)
 		c_max=3.0
 	}
 
-	df2=data.frame()
-	for(x in 1:dim(df)[1]){
-		for(y in 1:dim(df)[2]){
-			df2=rbind(df2,c(colnames(df)[y],df[x,y]))
+	if(fig_nr=="fig8e"){
+		df2=data.frame()
+		for(x in 1:dim(df)[1]){
+			for(y in 1:dim(df)[2]){
+				df2=rbind(df2,c(colnames(df)[y],df[x,y],paste0(colnames(df)[y],"--",my_group[y])))
+			}
 		}
+		df2[,2]=as.numeric(df2[,2])
+		colnames(df2)=c("A","B","C")
+	}else{
+		df2=data.frame()
+		for(x in 1:dim(df)[1]){
+			for(y in 1:dim(df)[2]){
+				df2=rbind(df2,c(colnames(df)[y],df[x,y]))
+			}
+		}
+		df2[,2]=as.numeric(df2[,2])
+		colnames(df2)=c("A","B")
 	}
-	df2[,2]=as.numeric(df2[,2])
-	colnames(df2)=c("A","B")
 
-	print(df)
+	if(fig_nr=="fig8e"){
+		se <- function(x){sd(x)/sqrt(length(x))}
+		print(head(df2))
+		my_dat <- summarise(group_by(df2, C), my_mean = mean(B), my_se = se(B))
+		my_dat=cbind(my_dat,c(0,1,0,1,0,1,0,1))
+		colnames(my_dat)[1]="A"
+		colnames(my_dat)[4]="D"
 
-	se <- function(x){sd(x)/sqrt(length(x))}
-	my_dat <- summarise(group_by(df2, A), my_mean = mean(B), my_se = se(B))
+		cn=my_dat[,1]
+		cn=gsub("--0","",cn)
+		cn=gsub("--1","",cn)
 
+		my_dat[,1]=cn
+
+		print(my_dat)
+		my_dat<<-my_dat
+	}else{
+		se <- function(x){sd(x)/sqrt(length(x))}
+		my_dat <- summarise(group_by(df2, A), my_mean = mean(B), my_se = se(B))
+	}
 	print(my_dat)
 
+	print(head(df2))
+
 	pdf(paste0(fig_nr,".pdf"),width=10,height=5)
-	p1 <- ggplot() + 
-	  geom_bar(data = my_dat,
+	p1 <- ggplot() 
+	if(fig_nr=="fig8e"){
+		p1=ggbarplot(df2, x = "A", y = "B",add = c("mean_se", "jitter"),color = "C",position = position_dodge(0.8))
+		print(p1)
+	}else{
+		p1=p1+	  geom_bar(data = my_dat,
 	           aes(y = my_mean, label=my_label,x = A,
 	               ymin = my_mean - my_se,
-	               ymax = my_mean + my_se),stat="identity", width=0.75) + 
-	  geom_errorbar(data = my_dat,
+	               ymax = my_mean + my_se),stat="identity", width=0.75)
+		 p1=p1+geom_errorbar(data = my_dat,
 	                aes(y = my_mean, x = A,
 	                    ymin = my_mean - my_se,
-	                    ymax = my_mean + my_se), stat="identity", width=0.75) + 
-	  geom_point(data = df2, aes(y = B, x = A)) +
-  	ylim(c(0,c_max))
-	p1=p1+theme(axis.text.x = element_text(angle = 45, hjust=1))
-	p1=p1+ylab(expression(paste("Relative expression to ",italic("BdActin"))))
-	p1=p1+scale_x_discrete(limits=colnames(df))
-	print(p1)
+	                    ymax = my_mean + my_se), stat="identity", width=0.75) + 	  geom_point(data = df2, aes(y = B, x = A)) +
+	  	ylim(c(0,c_max))
+		p1=p1+theme(axis.text.x = element_text(angle = 45, hjust=1))
+		p1=p1+ylab(expression(paste("Relative expression to ",italic("BdActin"))))
+		p1=p1+scale_x_discrete(limits=colnames(df))
+		print(p1)
+	}
 	dev.off()
 }
