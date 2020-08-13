@@ -4,6 +4,8 @@ function (fig_nr)
 	library(gridExtra)
 	library(dplyr)
 	library(backports)
+	library(showtext)
+
 
 	options(stringsAsFactors=FALSE)
 
@@ -54,9 +56,11 @@ function (fig_nr)
 	se <- function(x){sd(x)/sqrt(length(x))}
 	my_dat <- summarise(group_by(df2, A), my_mean = mean(B), my_se = se(B))
 
+	my_label="AAAA*B*cc**CC**";
+
 	p1 <- ggplot() + 
 	  geom_bar(data = my_dat,
-	           aes(y = my_mean, x = A,
+	           aes(y = my_mean, label=my_label,x = A,
 	               ymin = my_mean - my_se,
 	               ymax = my_mean + my_se), stat="identity", width=0.75) + 
 	  geom_errorbar(data = my_dat,
@@ -64,6 +68,9 @@ function (fig_nr)
 	                    ymin = my_mean - my_se,
 	                    ymax = my_mean + my_se), stat="identity", width=0.75) + 
 	  geom_point(data = df2, aes(y = B, x = A, fill = "red")) +
-  	theme_classic() + ylim(c(0,2))
+  	ylim(c(0,2))
+	p1=p1+theme(axis.text.x = element_text(angle = 45))
+	p1=p1+ylab(expression(paste("Relative expression to ",italic("BdActin"))))
+	p1=p1+scale_x_discrete(limits=colnames(df))
 	p1
 }
