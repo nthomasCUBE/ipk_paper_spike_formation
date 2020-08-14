@@ -44,7 +44,7 @@ function (fig_nr)
 		df=rbind(df,c(0.576969429,0.180292937,0.646415539,0.107583616,0.494639132,0.279203472,0.234254844,0.277084763))
 		df=rbind(df,c(0.642501748,0.135829033,0.460694981,0.104069865,0.317202992,0.296903763,0.38524544,0.211664068))
 		colnames(df)=c("Triple Mound","Triple Mound","Glume Primordium","Glume Primordium","Stamen Primordium","Stamen Primordium","Awn Primordium","Awn Primordium")
-		my_group=c(0,1,0,1,0,1,0,1)
+		my_group=c("Bowman","BW-NIL (vrs4.k)","Bowman","BW-NIL (vrs4.k)","Bowman","BW-NIL (vrs4.k)","Bowman","BW-NIL (vrs4.k)")
 		c_max=1
 	}else if(fig_nr=="fig8o"){
 		df=data.frame()
@@ -52,7 +52,7 @@ function (fig_nr)
 		df=rbind(df,c(1.840139882,1.442164705,1.760995765,2.062078407,1.98231769,1.054917875))
 		df=rbind(df,c(2.47287307,2.760651335,2.857246865,1.543723038,2.236258847,1.116897614))
 		colnames(df)=c("Triple Mound","Triple Mound","Glume Primordium", "Glume Primordium","Stamen+Lemma Primordia","Stamen+Lemma Primordia") 
-		my_group=c(0,1,0,1,0,1)
+		my_group=c("Bowman","com1.a","Bowman","com1.a","Bowman","com1.a")
 		c_max=3.0
 	}
 
@@ -87,6 +87,10 @@ function (fig_nr)
 		cn=my_dat[,1]
 		cn=gsub("--0","",cn)
 		cn=gsub("--1","",cn)
+		cn=gsub("--Bowman","",cn)
+		cn=gsub("--BW-NIL(vrs4.k)","",cn)
+		cn=gsub("--Bowman","",cn)
+		cn=gsub("--com1.a","",cn)
 
 		my_dat[,1]=cn
 
@@ -103,7 +107,12 @@ function (fig_nr)
 	pdf(paste0(fig_nr,".pdf"),width=10,height=5)
 	p1 <- ggplot() 
 	if(fig_nr=="fig8e" || fig_nr=="fig8o"){
-		p1=ggbarplot(df2, x = "A", y = "B",add = c("mean_se", "jitter"),color = "C",position = position_dodge(0.8))
+		p1=ggbarplot(df2, 
+x = "A", 
+y = "B",
+ylab=expression(paste("Relative expression to ",italic("BdActin"))),
+xlab="",
+add = c("mean_se", "jitter"),color = "C",position = position_dodge(0.8))
 		print(p1)
 	}else{
 		p1=p1+	  geom_bar(data = my_dat,
