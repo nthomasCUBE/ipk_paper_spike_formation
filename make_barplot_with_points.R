@@ -104,7 +104,8 @@ function (fig_nr)
 
 	print(head(df2))
 
-	pdf(paste0(fig_nr,".pdf"),width=10,height=5)
+	#pdf(paste0(fig_nr,".pdf"),width=10,height=5)
+	svg(paste0(fig_nr,".svg"),width=10,height=5)
 	p1 <- ggplot() 
 	if(fig_nr=="fig8e" || fig_nr=="fig8o"){
 		p1=ggbarplot(df2, 
@@ -112,6 +113,8 @@ x = "A",
 y = "B",
 ylab=expression(paste("Relative expression to ",italic("BdActin"))),
 xlab="",
+legend.title="Condition",
+font.legend=c(10,"plain","black"),
 add = c("mean_se", "jitter"),color = "C",position = position_dodge(0.8))
 		print(p1)
 	}else{
