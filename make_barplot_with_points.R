@@ -51,11 +51,12 @@ function (fig_nr)
 		df=rbind(df,c(0.9451904382,0.7028056476,1.683656337,1.985032241,1.936736173,1.424544254))
 		df=rbind(df,c(1.840139882,1.442164705,1.760995765,2.062078407,1.98231769,1.054917875))
 		df=rbind(df,c(2.47287307,2.760651335,2.857246865,1.543723038,2.236258847,1.116897614))
-		colnames(df)=c("Triple Mound (Bowman)","Triple Mound (com1.a)","Glume Primordium (Bowman)", "Glume Primordium (com1.a)","Stamen+Lemma Primordia (Bowman)","Stamen+Lemma Primordia (com1.a)") 
+		colnames(df)=c("Triple Mound","Triple Mound","Glume Primordium", "Glume Primordium","Stamen+Lemma Primordia","Stamen+Lemma Primordia") 
+		my_group=c(0,1,0,1,0,1)
 		c_max=3.0
 	}
 
-	if(fig_nr=="fig8e"){
+	if(fig_nr=="fig8e" || fig_nr=="fig8o"){
 		df2=data.frame()
 		for(x in 1:dim(df)[1]){
 			for(y in 1:dim(df)[2]){
@@ -75,11 +76,11 @@ function (fig_nr)
 		colnames(df2)=c("A","B")
 	}
 
-	if(fig_nr=="fig8e"){
+	if(fig_nr=="fig8e" || fig_nr=="fig8o"){
 		se <- function(x){sd(x)/sqrt(length(x))}
 		print(head(df2))
 		my_dat <- summarise(group_by(df2, C), my_mean = mean(B), my_se = se(B))
-		my_dat=cbind(my_dat,c(0,1,0,1,0,1,0,1))
+		my_dat=cbind(my_dat,my_group)
 		colnames(my_dat)[1]="A"
 		colnames(my_dat)[4]="D"
 
@@ -101,12 +102,12 @@ function (fig_nr)
 
 	pdf(paste0(fig_nr,".pdf"),width=10,height=5)
 	p1 <- ggplot() 
-	if(fig_nr=="fig8e"){
+	if(fig_nr=="fig8e" || fig_nr=="fig8o"){
 		p1=ggbarplot(df2, x = "A", y = "B",add = c("mean_se", "jitter"),color = "C",position = position_dodge(0.8))
 		print(p1)
 	}else{
 		p1=p1+	  geom_bar(data = my_dat,
-	           aes(y = my_mean, label=my_label,x = A,
+	           aes(y = my_mean, x = A,
 	               ymin = my_mean - my_se,
 	               ymax = my_mean + my_se),stat="identity", width=0.75)
 		 p1=p1+geom_errorbar(data = my_dat,
